@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <RootNamespace>EM.EMSm</RootNamespace>
+    <Authors>Manfred Ehrengruber</Authors>
+    <Company>EM</Company>
+  </PropertyGroup>
+
+</Project>
