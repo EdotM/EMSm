@@ -6,9 +6,15 @@ namespace EM.EMSm
 {
     public class Command
     {
+        #region properties
+
         public Enum Cmd { get; private set; }
 
         public object CmdArgs { get; private set; }
+
+        #endregion
+
+        #region constructor
 
         public Command(Enum cmd, object cmdArgs)
         {
@@ -19,5 +25,7 @@ namespace EM.EMSm
         public Command(Enum cmd) : this(cmd, null)
         {
         }
+
+        #endregion
     }
 }

@@ -3,23 +3,36 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+[assembly: CLSCompliant(true)]
+[assembly: System.Resources.NeutralResourcesLanguageAttribute("en")]
+
 namespace EM.EMSm
 {
     public class StatePathChangedEventArgs : EventArgs
     {
+        #region properties
+
         public string OldStatePath { get; private set; }
         public string NewStatePath { get; private set; }
+
+        #endregion
+
+        #region constructor
 
         public StatePathChangedEventArgs(string oldStatePath, string newStatePath)
         {
             this.OldStatePath = oldStatePath;
             this.NewStatePath = newStatePath;
         }
+
+        #endregion
     }
 
     public class State
     {
-        private object syncRoot = new object();
+        #region private fields
+
+        private readonly object syncRoot = new object();
 
         private bool isRunning = false;
 
@@ -30,9 +43,24 @@ namespace EM.EMSm
 
         private string oldStatePath = null;
         
-        
-        protected Context context = null;
+        private readonly Context context = null;
 
+        #endregion
+
+        #region properties
+
+        private Dictionary<string, object> VarsDictionary
+        {
+            get
+            {
+                return this.varsDictionary;
+            }
+            set
+            {
+                if (this.varsDictionary == null)
+                    this.varsDictionary = value;
+            }
+        }
 
         public virtual TransitionsTable TransitionsTable { get; }
         
@@ -59,6 +87,9 @@ namespace EM.EMSm
             }
         }
 
+        #endregion
+
+        #region constructor
 
         public State(string name)
         {
@@ -74,35 +105,70 @@ namespace EM.EMSm
         {
         }
 
-        private Dictionary<string, object> VarsDictionary
+        #endregion
+
+        #region private methods
+
+        private static bool IsCommandsEnumValid(Type commandsEnumType)
         {
-            get
+            var values = Enum.GetValues(commandsEnumType);
+            foreach (var value in values)
             {
-                return this.varsDictionary;
+                if (value.ToString() == "None")
+                    return true;
             }
-            set
-            {
-                if (this.varsDictionary == null)
-                    this.varsDictionary = value;
-            }
+            return false;
         }
 
+        #endregion
 
+        #region protected methods
 
-        protected virtual void Enter()
+        protected virtual void Entry()
         {
             
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "<Pending>")]
         protected virtual Enum Do()
         {
             return null;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "<Pending>")]
         protected virtual void Exit()
         {
             
         }
+
+        protected bool IsCommandAvailable<T>() where T : Enum
+        {
+            return ((this.command != null) && (this.command.Cmd is T));
+        }
+
+        protected T GetCommand<T>() where T : Enum
+        {
+            if (!IsCommandsEnumValid(typeof(T)))
+                throw new InvalidConfigException(EM.EMSm.Properties.Resources.NoNoneCommandDefinedMessage);
+
+            if ((this.command != null) && (this.command.Cmd is T))
+                return (T)this.command.Cmd;
+            else
+                return default;
+        }
+
+        protected T GetVar<T>(string name)
+        {
+            if (this.varsDictionary == null)
+                throw new VarNotFoundException(EM.EMSm.Properties.Resources.VarNotFoundMessage);
+            if (!this.varsDictionary.ContainsKey(name))
+                throw new VarNotFoundException(EM.EMSm.Properties.Resources.VarNotFoundMessage);
+            return (T)this.varsDictionary[name];
+        }
+
+        #endregion
+
+        #region public methods
 
         public Enum RunCycle()
         {
@@ -117,8 +183,8 @@ namespace EM.EMSm
 
                 if (!this.isRunning)
                 {
-                    Debug.WriteLine($"{this.Name}: Execute Enter()");
-                    Enter();
+                    Debug.WriteLine($"{this.Name}: Execute Entry()");
+                    Entry();
                     this.isRunning = true;
                 }
 
@@ -159,33 +225,12 @@ namespace EM.EMSm
             }
         }
 
-        protected bool IsCommandAvailable<T>() where T : Enum
-        {
-            return ((this.command != null) && (this.command.Cmd is T));
-        }
-
-        protected T GetCommand<T>() where T : Enum
-        {
-            if ((this.command != null) && (this.command.Cmd is T))
-                return (T)this.command.Cmd;
-            else
-                return default;
-        }
-
-
         public void InjectVar(string name, object var)
         {
             if (this.varsDictionary == null)
                 this.varsDictionary = new Dictionary<string, object>();
             this.varsDictionary.Add(name, var);
         }
-
-        protected T GetVar<T>(string name)
-        {
-            return (T)this.varsDictionary[name];
-        }
-
-
 
         internal void Reset()
         {
@@ -195,13 +240,16 @@ namespace EM.EMSm
             this.isRunning = false;
         }
 
+        #endregion
+
+        #region events
 
         public event EventHandler<StatePathChangedEventArgs> StatePathChanged;
         protected virtual void OnStatePathChanged(StatePathChangedEventArgs e)
         {
-            if (StatePathChanged != null)
-                StatePathChanged(this, e);
+            StatePathChanged?.Invoke(this, e);
         }
 
+        #endregion
     }
 }

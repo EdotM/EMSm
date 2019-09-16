@@ -4,18 +4,26 @@ using System.Text;
 
 namespace EM.EMSm
 {
-    internal static class StateFactory
+    internal class StateFactory
     {
-        static private Dictionary<string, State> _states = new Dictionary<string, State>();
+        #region private fields
 
-        public static State CreateState(Type type, string name)
+        private readonly Dictionary<string, State> states = new Dictionary<string, State>();
+
+        #endregion
+
+        #region public methods
+
+        public State CreateState(Type type, string name)
         {
-            if (!_states.ContainsKey(name))
+            if (!this.states.ContainsKey(name))
             {
-                _states.Add(name, (State)Activator.CreateInstance(type));
-                _states[name].Name = name;
+                this.states.Add(name, (State)Activator.CreateInstance(type));
+                this.states[name].Name = name;
             }
-            return _states[name];
+            return states[name];
         }
+
+        #endregion
     }
 }
