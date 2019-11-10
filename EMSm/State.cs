@@ -28,7 +28,7 @@ namespace EM.EMSm
         #endregion
     }
 
-    public class State
+    public abstract class State
     {
         #region private fields
 
@@ -157,6 +157,36 @@ namespace EM.EMSm
                 return default;
         }
 
+        protected Command GetCommand()
+        {
+            if (this.command != null)
+            {
+                if (!IsCommandsEnumValid(this.command.Cmd.GetType()))
+                    throw new InvalidConfigException(EM.EMSm.Properties.Resources.NoNoneCommandDefinedMessage);
+                return this.command;
+            }
+            else
+                return null;
+        }
+
+        protected Type GetCommandArgsType()
+        {
+            if ((this.command != null) && (this.command.CmdArgs != null))
+                return this.command.CmdArgs.GetType();
+            else
+                return null;
+        }
+
+        protected T GetCommandArgs<T>()
+        {
+            if ((this.command != null) && (this.command.CmdArgs is T))
+                return (T)this.command.CmdArgs;
+            else
+                return default;
+        }
+
+
+
         protected T GetVar<T>(string name)
         {
             if (this.varsDictionary == null)
@@ -170,7 +200,7 @@ namespace EM.EMSm
 
         #region public methods
 
-        public Enum RunCycle()
+        internal Enum RunInternalCycle()
         {
             Enum transition = null;
             try
@@ -216,6 +246,12 @@ namespace EM.EMSm
             return transition;
         }
 
+        public void RunCycle()
+        {
+            this.RunInternalCycle();
+        }
+
+
         public void InjectCommand(Command command)
         {
             lock (syncRoot)
@@ -224,6 +260,17 @@ namespace EM.EMSm
                     this.newCommand = command;
             }
         }
+
+        public void InjectCommand<T>(Enum cmd, T cmdArgs)
+        {
+            this.InjectCommand(new Command(cmd, cmdArgs));
+        }
+
+        public void InjectCommand(Enum cmd)
+        {
+            this.InjectCommand(new Command(cmd, null));
+        }
+
 
         public void InjectVar(string name, object var)
         {

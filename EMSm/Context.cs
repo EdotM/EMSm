@@ -48,7 +48,7 @@ namespace EM.EMSm
         public void Operate()
         {
             Enum transition;
-            if ((transition = this.CurrentState.RunCycle()) != null)
+            if ((transition = this.CurrentState.RunInternalCycle()) != null)
             {
                 this.CurrentState.Reset();
                 this.CurrentState = this.transitionsDict[transition];

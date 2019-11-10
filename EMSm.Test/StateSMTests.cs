@@ -5,6 +5,36 @@ using NUnit.Framework;
 namespace EMSm.Test
 {
 
+    #region TestCommandArgs
+
+    class ComplexRefType
+    {
+        public int IntVar { get; set; }
+
+        public string StrVar { get; set; }
+
+    }
+
+    struct ComplexValType
+    {
+        public int IntVar { get; set; }
+
+        public string StrVar { get; set; }
+
+    }
+    class TestCommandArgs
+    {
+        public int IntVar { get; set; }
+
+        public string StrVar { get; set; }
+
+        public ComplexRefType RefType { get; set; }
+        
+        public ComplexValType ValType { get; set; }
+    }
+
+    #endregion
+
     #region TestState
 
     class TestState : State
@@ -25,6 +55,10 @@ namespace EMSm.Test
 
         public Commands LastCommand { get; set; }
 
+        public TestCommandArgs LastCommandArgs { get; set; }
+
+        public int LastSimpleCommandArgs { get; set; }
+
         protected override void Entry()
         {
             this.IsEntryExecuted = true;
@@ -37,6 +71,14 @@ namespace EMSm.Test
             this.IsDoExecuted = true;
             this.DoExecutedCtr++;
             this.LastCommand = this.GetCommand<Commands>();
+            Type commandArgsType;
+            if ((commandArgsType = this.GetCommandArgsType()) != null)
+            {
+                if (commandArgsType == typeof(int))
+                    this.LastSimpleCommandArgs = this.GetCommandArgs<int>();
+                else if (commandArgsType == typeof(TestCommandArgs))
+                    this.LastCommandArgs = this.GetCommandArgs<TestCommandArgs>();
+            }
 
             return base.Do();
         }
@@ -168,7 +210,7 @@ namespace EMSm.Test
         {
             TestState innerState = (TestState)this.testSM.InnerState;
             this.testSM.RunCycle();
-            this.testSM.InjectCommand(new Command(Commands.Enable));
+            this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
             Assert.IsTrue(innerState.IsExitExecuted);
         }
@@ -178,7 +220,7 @@ namespace EMSm.Test
         {
             TestState innerState = (TestState)this.testSM.InnerState;
             this.testSM.RunCycle();
-            this.testSM.InjectCommand(new Command(Commands.Enable));
+            this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
             Assert.IsTrue((innerState.EntryExecutedCtr == 1) && (innerState.DoExecutedCtr == 1) && (innerState.ExitExecutedCtr == 1));
         }
@@ -195,7 +237,7 @@ namespace EMSm.Test
         public void RunCycle_RunOfStateTransition_ShouldSwitchToEnabledState()
         {
             this.testSM.RunCycle();
-            this.testSM.InjectCommand(new Command(Commands.Enable));
+            this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
             Assert.IsTrue(this.testSM.InnerState is EnabledState);
         }
@@ -205,10 +247,10 @@ namespace EMSm.Test
         {
             this.testSM.RunCycle();
             Assert.IsTrue(this.testSM.InnerState is DisabledState);
-            this.testSM.InjectCommand(new Command(Commands.Enable));
+            this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
             Assert.IsTrue(this.testSM.InnerState is EnabledState);
-            this.testSM.InjectCommand(new Command(Commands.Disable));
+            this.testSM.InjectCommand(Commands.Disable);
             this.testSM.RunCycle();
             Assert.IsTrue(this.testSM.InnerState is DisabledState);
         }
@@ -218,9 +260,9 @@ namespace EMSm.Test
         {
             this.testSM.RunCycle();
             ((TestState)this.testSM.InnerState).InstanceId = 0x12345678;
-            this.testSM.InjectCommand(new Command(Commands.Enable));
+            this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
-            this.testSM.InjectCommand(new Command(Commands.Disable));
+            this.testSM.InjectCommand(Commands.Disable);
             this.testSM.RunCycle();
             Assert.IsTrue(((TestState)this.testSM.InnerState).InstanceId == 0x12345678);
         }
@@ -241,7 +283,7 @@ namespace EMSm.Test
         public void InjectCommand_InjectCommand_ShouldBeAvailableInAllInnerStates()
         {
             this.testSM.RunCycle();
-            this.testSM.InjectCommand(new Command(Commands.Disable));
+            this.testSM.InjectCommand(Commands.Disable);
             this.testSM.RunCycle();
             TestState innerState = this.testSM;
             while (innerState != null)
@@ -255,7 +297,7 @@ namespace EMSm.Test
         public void InjectCommand_InjectCommand_ShouldBeAvailableInAllInnerStatesOnlyForOneRunCycle()
         {
             this.testSM.RunCycle();
-            this.testSM.InjectCommand(new Command(Commands.Disable));
+            this.testSM.InjectCommand(Commands.Disable);
             this.testSM.RunCycle();
             TestState innerState = this.testSM;
             while (innerState != null)
@@ -271,6 +313,73 @@ namespace EMSm.Test
                 innerState = (TestState)innerState.InnerState;
             }
         }
+
+        [Test]
+        public void InjectCommand_InjectCommandEnum_ShouldBeAvailableInAllInnerStates()
+        {
+            this.testSM.RunCycle();
+            this.testSM.InjectCommand(Commands.Disable);
+            this.testSM.RunCycle();
+            TestState innerState = this.testSM;
+            while (innerState != null)
+            {
+                Assert.IsTrue(innerState.LastCommand == Commands.Disable);
+                innerState = (TestState)innerState.InnerState;
+            }
+        }
+
+        [Test]
+        public void InjectCommand_InjectCommandWithSimpleArgs_ArgsShouldBeAvailableInAllInnerStates()
+        {
+            this.testSM.RunCycle();
+            this.testSM.InjectCommand<int>(Commands.Disable, 6);
+            this.testSM.RunCycle();
+            TestState innerState = this.testSM;
+            while (innerState != null)
+            {
+                Assert.IsTrue(innerState.LastSimpleCommandArgs == 6);
+
+                innerState = (TestState)innerState.InnerState;
+            }
+        }
+
+        [Test]
+        public void InjectCommand_InjectCommandWithArgs_ArgsShouldBeAvailableInAllInnerStates()
+        {
+            this.testSM.RunCycle();
+            this.testSM.InjectCommand<TestCommandArgs>(Commands.Disable, new TestCommandArgs() { IntVar = 3, StrVar = "Hallo", RefType = (new ComplexRefType() { IntVar = 2, StrVar = "HalloRef" }), ValType = (new ComplexValType() { IntVar = 1, StrVar = "HalloVal" }) });
+            this.testSM.RunCycle();
+            TestState innerState = this.testSM;
+            while (innerState != null)
+            {
+                Assert.IsTrue(innerState.LastCommandArgs != null);
+                Assert.IsTrue(innerState.LastCommandArgs.IntVar == 3);
+                Assert.IsTrue(innerState.LastCommandArgs.StrVar == "Hallo");
+                Assert.IsTrue(innerState.LastCommandArgs.RefType != null);
+                Assert.IsTrue(innerState.LastCommandArgs.RefType.IntVar == 2);
+                Assert.IsTrue(innerState.LastCommandArgs.RefType.StrVar == "HalloRef");
+                Assert.IsTrue(innerState.LastCommandArgs.ValType.IntVar == 1);
+                Assert.IsTrue(innerState.LastCommandArgs.ValType.StrVar == "HalloVal");
+
+                innerState = (TestState)innerState.InnerState;
+            }
+        }
+
+        [Test]
+        public void InjectCommand_InjectCommandWithoutArgs_ArgsShouldBeNullInAllInnerStates()
+        {
+            this.testSM.RunCycle();
+            this.testSM.InjectCommand(Commands.Disable);
+            this.testSM.RunCycle();
+            TestState innerState = this.testSM;
+            while (innerState != null)
+            {
+                Assert.IsTrue(innerState.LastCommandArgs == null);
+
+                innerState = (TestState)innerState.InnerState;
+            }
+        }
+
 
         [TearDown]
         public void TearDown()
