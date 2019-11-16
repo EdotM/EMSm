@@ -61,6 +61,11 @@ namespace EM.EMSm
             this.CurrentState = InitialState;
         }
 
+        public void SetCurrentStateFromName(string stateName)
+        {
+            this.CurrentState = stateFactory.GetState(stateName);
+        }
+
         #endregion    
     }
 }

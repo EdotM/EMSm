@@ -41,4 +41,43 @@ namespace EM.EMSm
 
         #endregion
     }
+
+    public class StateNotFoundException : Exception
+    {
+        #region constructor
+
+        public StateNotFoundException(string message) : base(message)
+        {
+        }
+
+        public StateNotFoundException()
+        {
+        }
+
+        public StateNotFoundException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        #endregion
+    }
+
+    public class InvalidStatePathException : Exception
+    {
+        #region constructor
+
+        public InvalidStatePathException(string message) : base(message)
+        {
+        }
+
+        public InvalidStatePathException()
+        {
+        }
+
+        public InvalidStatePathException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        #endregion
+    }
+
 }

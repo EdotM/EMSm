@@ -61,6 +61,15 @@ namespace EM.EMSm.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to StatePath is invalid, no context for specified state defined!.
+        /// </summary>
+        internal static string InvalidStatePathMessage {
+            get {
+                return ResourceManager.GetString("InvalidStatePathMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Initial state defined! Please add a TransitionEntry with a initial-transition to the TransitionsTable. (more info at www.eforge.net/emsm).
         /// </summary>
         internal static string NoInitialStateDefinedMessage {
@@ -75,6 +84,15 @@ namespace EM.EMSm.Properties {
         internal static string NoNoneCommandDefinedMessage {
             get {
                 return ResourceManager.GetString("NoNoneCommandDefinedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no state with specified name available!.
+        /// </summary>
+        internal static string StateNotFoundMessage {
+            get {
+                return ResourceManager.GetString("StateNotFoundMessage", resourceCulture);
             }
         }
         

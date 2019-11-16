@@ -24,6 +24,13 @@ namespace EM.EMSm
             return states[name];
         }
 
+        public State GetState(string name)
+        {
+            if (!this.states.ContainsKey(name))
+                throw new StateNotFoundException($"{EM.EMSm.Properties.Resources.StateNotFoundMessage} (name:\"{name}\")");
+            return states[name];
+        }
+
         #endregion
     }
 }

@@ -30,6 +30,12 @@ namespace EM.EMSm
 
     public abstract class State
     {
+        #region consts
+
+        private const string StatePathSepStr = "->";
+
+        #endregion
+
         #region private fields
 
         private readonly object syncRoot = new object();
@@ -73,9 +79,40 @@ namespace EM.EMSm
                 string currentStateName = this.Name;
                 if (this.context != null)
                 {
-                    currentStateName += $"->{this.context.CurrentState.StatePath}";
+                    currentStateName += $"{StatePathSepStr}{this.context.CurrentState.StatePath}";
                 }
                 return currentStateName;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                int sepIdx = value.IndexOf(StatePathSepStr, StringComparison.Ordinal);
+                if (sepIdx > 0)
+                {
+                    //check first state name
+                    string firstStateName = value.Substring(0, sepIdx);
+                    if (!firstStateName.Contains(this.Name, StringComparison.Ordinal))
+                        throw new InvalidStatePathException($"{EM.EMSm.Properties.Resources.StateNotFoundMessage} (name:\"{firstStateName}\")");
+                    //check if context for innerStatePath is available
+                    string innerStatePath = value.Remove(0, sepIdx + StatePathSepStr.Length);
+                    if (this.context == null)
+                        throw new InvalidStatePathException($"{EM.EMSm.Properties.Resources.InvalidStatePathMessage} (Inner StatePath:\"{innerStatePath}\")");
+                    //extract secondStateName and forward it to the context
+                    string secondStateName = innerStatePath;
+                    sepIdx = secondStateName.IndexOf(StatePathSepStr, StringComparison.Ordinal);
+                    if (sepIdx > 0)
+                        secondStateName = secondStateName.Remove(sepIdx);
+                    this.context.SetCurrentStateFromName(secondStateName);
+                    //forward statePath to the inner state
+                    this.context.CurrentState.StatePath = innerStatePath;
+                }
+                else
+                {
+                    //if no sep-string -> validate name of actual state
+                    if (!value.Contains(this.Name, StringComparison.Ordinal))
+                        throw new InvalidStatePathException($"{EM.EMSm.Properties.Resources.StateNotFoundMessage} (name:\"{value}\")");
+                }
             }
         }
 

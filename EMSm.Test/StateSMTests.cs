@@ -110,8 +110,36 @@ namespace EMSm.Test
         DisableCommandReceived,
     }
 
+    class InnerState1 : TestState
+    {
+    }
+
+    class InnerState2 : TestState
+    {
+    }
+
+
     class EnabledState : TestState
     {
+        public override TransitionsTable TransitionsTable
+        {
+            get => new TransitionsTable {
+            new TransitionEntry{
+                Transition=Transitions.Initial,
+                StateType=typeof(InnerState1),
+                StateName="InnerDisabled"},
+            new TransitionEntry{
+                Transition=Transitions.EnableCommandReceived,
+                StateType=typeof(InnerState2),
+                StateName="InnerEnabled"},
+            new TransitionEntry{
+                Transition=Transitions.DisableCommandReceived,
+                StateType=typeof(DisabledState),
+                StateName="InnerDisabled"},
+            };
+        }
+
+
         protected override void Entry()
         {
             base.Entry();
@@ -378,6 +406,52 @@ namespace EMSm.Test
 
                 innerState = (TestState)innerState.InnerState;
             }
+        }
+
+        [Test]
+        public void StatePathSet_SetStatePathWithOneInnerState_StatesShouldBeSetCorrectly()
+        {
+            string newStatePath = "TestSM->Enabled";
+            this.testSM.StatePath = newStatePath;
+            Assert.IsTrue(this.testSM.StatePath.Contains(newStatePath, StringComparison.Ordinal));
+        }
+
+        [Test]
+        public void StatePathSet_SetStatePathWithTwoInnerState_StatesShouldBeSetCorrectly()
+        {
+            string newStatePath = "TestSM->Enabled->InnerDisabled";
+            this.testSM.StatePath = newStatePath;
+            Assert.AreEqual(this.testSM.StatePath, newStatePath);
+        }
+
+        [Test]
+        public void StatePathSet_SetInvalidStatePath_ShouldThrowArgumentNullException()
+        {
+            string newStatePath = null;
+            Assert.Throws<ArgumentNullException>(() => this.testSM.StatePath = newStatePath);
+        }
+
+        [Test]
+        public void StatePathSet_SetInvalidStatePath_ShouldThrowInvalidStatePathException()
+        {
+            string newStatePath = "TestSm->Enabled->InnerDisabled";
+            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+            newStatePath = "TestSM->Enabled->InnerDisabled->Invalid";
+            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+            
+            newStatePath = "TestSM->Enabled->InnerDisabled->";
+            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+            newStatePath = string.Empty;
+            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+        }
+
+        [Test]
+        public void StatePathSet_SetInvalidStatePath_ShouldThrowStateNotFoundException()
+        {
+            string newStatePath = "TestSM->nabled->InnerDisabled";
+            Assert.Throws<StateNotFoundException>(() => this.testSM.StatePath = newStatePath);
+            newStatePath = "TestSM->Enabled->Innerisabled";
+            Assert.Throws<StateNotFoundException>(() => this.testSM.StatePath = newStatePath);
         }
 
 
