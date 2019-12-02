@@ -4,6 +4,9 @@ using System.Text;
 
 namespace EM.EMSm
 {
+    /// <summary>
+    /// Provides context functionality of inner states 
+    /// </summary>
     internal class Context
     {
         #region private fields
@@ -13,15 +16,33 @@ namespace EM.EMSm
 
         #endregion
 
-        #region properties
+        #region properties        
 
+        /// <summary>
+        /// Gets the initial state.
+        /// </summary>
+        /// <value>
+        /// The initial state.
+        /// </value>
         public State InitialState { get; private set; }
+        /// <summary>
+        /// Gets the current state.
+        /// </summary>
+        /// <value>
+        /// The current state.
+        /// </value>
         public State CurrentState { get; private set; }
 
         #endregion
 
         #region constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Context"/> class.
+        /// </summary>
+        /// <param name="transitionsTable">The transitions table, which holds the structure of the inner states</param>
+        /// <exception cref="ArgumentNullException">transitionsTable</exception>
+        /// <exception cref="InvalidConfigException"></exception>
         public Context(TransitionsTable transitionsTable)
         {
             if (transitionsTable == null)
@@ -43,8 +64,11 @@ namespace EM.EMSm
 
         #endregion
 
-        #region public methods
+        #region public methods        
 
+        /// <summary>
+        /// Operates the current state, given by the context
+        /// </summary>
         public void Operate()
         {
             Enum transition;
@@ -55,12 +79,18 @@ namespace EM.EMSm
             }
         }
 
+        /// <summary>
+        /// Resets the current state and sets it to initial state
+        /// </summary>
         public void Reset()
         {
             this.CurrentState.Reset();
             this.CurrentState = InitialState;
         }
 
+        /// <summary>Sets the current state by provding the name of the state.</summary>
+        /// <param name="stateName">Name of the state.</param>
+        /// <remarks>This is used for restoring the state-context by providing state paths</remarks>
         public void SetCurrentStateFromName(string stateName)
         {
             this.CurrentState = stateFactory.GetState(stateName);

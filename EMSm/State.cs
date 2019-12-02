@@ -8,17 +8,39 @@ using System.Text;
 
 namespace EM.EMSm
 {
+    /// <summary>
+    /// Provides the event data of the <see cref="State.StatePathChanged"/> event.
+    /// </summary>
+    /// <seealso cref="System.EventArgs" />
     public class StatePathChangedEventArgs : EventArgs
     {
         #region properties
 
+        /// <summary>
+        /// Gets the old state path.
+        /// </summary>
+        /// <value>
+        /// The old state path.
+        /// </value>
         public string OldStatePath { get; private set; }
+
+        /// <summary>
+        /// Gets the new state path.
+        /// </summary>
+        /// <value>
+        /// The new state path.
+        /// </value>
         public string NewStatePath { get; private set; }
 
         #endregion
 
         #region constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatePathChangedEventArgs"/> class.
+        /// </summary>
+        /// <param name="oldStatePath">The old state path.</param>
+        /// <param name="newStatePath">The new state path.</param>
         public StatePathChangedEventArgs(string oldStatePath, string newStatePath)
         {
             this.OldStatePath = oldStatePath;
@@ -28,11 +50,15 @@ namespace EM.EMSm
         #endregion
     }
 
+    /// <summary>
+    /// Represents the base class for state-classes.
+    /// Please refer to https://www.eforge.net/EMSm for further documentation.
+    /// </summary>
     public abstract class State
     {
         #region consts
 
-        private const string StatePathSepStr = "->";
+        private const string StatePathSepStr = "->";  //character which separates each state in the state-path-hierarchy      
 
         #endregion
 
@@ -55,6 +81,12 @@ namespace EM.EMSm
 
         #region properties
 
+        /// <summary>
+        /// Gets or sets the vars dictionary.
+        /// </summary>
+        /// <value>
+        /// The vars dictionary.
+        /// </value>
         private Dictionary<string, object> VarsDictionary
         {
             get
@@ -68,10 +100,35 @@ namespace EM.EMSm
             }
         }
 
+        /// <summary>
+        /// Gets the transitions table. 
+        /// This table has to be implemented (override) in each state,
+        /// which has inner-states
+        /// Please refer to https://www.eforge.net/EMSm for further information
+        /// </summary>
+        /// <value>
+        /// The transitions table.
+        /// </value>
         public virtual TransitionsTable TransitionsTable { get; }
-        
+
+        /// <summary>
+        /// Gets or sets the name of the state
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the state path of the current active hierarchical states
+        /// Is also used to restore the current state (e.g. after surprise-power-down)
+        /// </summary>
+        /// <value>
+        /// The state path.
+        /// </value>
+        /// <exception cref="ArgumentNullException">value</exception>
+        /// <exception cref="EM.EMSm.InvalidStatePathException">
+        /// </exception>
         public string StatePath
         {
             get
@@ -116,6 +173,12 @@ namespace EM.EMSm
             }
         }
 
+        /// <summary>
+        /// Gets the current active inner state
+        /// </summary>
+        /// <value>
+        /// The active inner state.
+        /// </value>
         public State InnerState
         {
             get
@@ -146,6 +209,13 @@ namespace EM.EMSm
 
         #region private methods
 
+        /// <summary>
+        /// Determines whether a "None"-command is present in the given command-enum.
+        /// </summary>
+        /// <param name="commandsEnumType">Type of the commands enum.</param>
+        /// <returns>
+        ///   <c>true</c> if the command-enum is valid otherwise, <c>false</c>.
+        /// </returns>
         private static bool IsCommandsEnumValid(Type commandsEnumType)
         {
             var values = Enum.GetValues(commandsEnumType);
@@ -161,28 +231,59 @@ namespace EM.EMSm
 
         #region protected methods
 
+        /// <summary>
+        /// Runs once a transition to the state occurs.
+        /// Can be implemented (override) in every state.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
         protected virtual void Entry()
         {
             
         }
 
+        /// <summary>
+        /// Here, the state-logic can be implemented (override).
+        /// Runs on every RunCycle.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <returns>New transition if a switch to another state is desired or even null if this state should be remain the active one.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "<Pending>")]
         protected virtual Enum Do()
         {
             return null;
         }
 
+        /// <summary>
+        /// Runs once before a transition to another state happens.
+        /// Can be implemented (override) in every state.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "<Pending>")]
         protected virtual void Exit()
         {
             
         }
 
+        /// <summary>
+        /// Determines whether a new command is available.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <typeparam name="T">Can be any specified command enum.</typeparam>
+        /// <returns>
+        ///   <c>true</c> if a new command is available otherwise, <c>false</c>.
+        /// </returns>
         protected bool IsCommandAvailable<T>() where T : Enum
         {
             return ((this.command != null) && (this.command.Cmd is T));
         }
 
+        /// <summary>
+        /// Gets an injected command-enum.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <typeparam name="T">Can be any specified command enum.</typeparam>
+        /// <returns>Command enum of the injected command.</returns>
+        /// <exception cref="EM.EMSm.InvalidConfigException"></exception>
         protected T GetCommand<T>() where T : Enum
         {
             if (!IsCommandsEnumValid(typeof(T)))
@@ -194,6 +295,11 @@ namespace EM.EMSm
                 return default;
         }
 
+        /// <summary>
+        /// Gets an injected command.
+        /// </summary>
+        /// <returns>The injected command.</returns>
+        /// <exception cref="EM.EMSm.InvalidConfigException"></exception>
         protected Command GetCommand()
         {
             if (this.command != null)
@@ -206,6 +312,10 @@ namespace EM.EMSm
                 return null;
         }
 
+        /// <summary>
+        /// Gets the type of the injected command arguments or null if there are no command args available.
+        /// </summary>
+        /// <returns>command args or null, if not available.</returns>
         protected Type GetCommandArgsType()
         {
             if ((this.command != null) && (this.command.CmdArgs != null))
@@ -214,6 +324,11 @@ namespace EM.EMSm
                 return null;
         }
 
+        /// <summary>
+        /// Gets the command arguments.
+        /// </summary>
+        /// <typeparam name="T">Type of the command arguments.</typeparam>
+        /// <returns>The command arguments of the current injected command.</returns>
         protected T GetCommandArgs<T>()
         {
             if ((this.command != null) && (this.command.CmdArgs is T))
@@ -223,7 +338,15 @@ namespace EM.EMSm
         }
 
 
-
+        /// <summary>
+        /// Gets a injected variable.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <typeparam name="T">Type of the injected variable.</typeparam>
+        /// <param name="name">The name of the requested variable.</param>
+        /// <returns>The injected variable</returns>
+        /// <exception cref="EM.EMSm.VarNotFoundException">
+        /// </exception>
         protected T GetVar<T>(string name)
         {
             if (this.varsDictionary == null)
@@ -237,6 +360,12 @@ namespace EM.EMSm
 
         #region public methods
 
+        /// <summary>
+        /// Runs one cycle of the state-machine. Every Do-Methods of the 
+        /// active hierarchical states are executed.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <returns>A transition to a new state or null.</returns>
         internal Enum RunInternalCycle()
         {
             Enum transition = null;
@@ -283,12 +412,22 @@ namespace EM.EMSm
             return transition;
         }
 
+        /// <summary>
+        /// Runs one cycle of the state-machine. Every Do-Methods of the 
+        /// active hierarchical states are executed.
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
         public void RunCycle()
         {
             this.RunInternalCycle();
         }
 
-
+        /// <summary>
+        /// Injects a command. Every State has access to this command
+        /// during the next executed RunCycle().
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <param name="command">The command which should be injected</param>
         public void InjectCommand(Command command)
         {
             lock (syncRoot)
@@ -298,17 +437,36 @@ namespace EM.EMSm
             }
         }
 
+        /// <summary>
+        /// Injects a command. Every State has access to this command
+        /// during the next executed RunCycle().
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <typeparam name="T">Type of the command enum</typeparam>
+        /// <param name="cmd">The command which should be injected.</param>
+        /// <param name="cmdArgs">The command arguments which should be injected.</param>
         public void InjectCommand<T>(Enum cmd, T cmdArgs)
         {
             this.InjectCommand(new Command(cmd, cmdArgs));
         }
 
+        /// <summary>
+        /// Injects a command. Every State has access to this command
+        /// during the next executed RunCycle().
+        /// Please refer to https://www.eforge.net/EMSm for further documentation.
+        /// </summary>
+        /// <param name="cmd">The command which should be injected.</param>
         public void InjectCommand(Enum cmd)
         {
             this.InjectCommand(new Command(cmd, null));
         }
 
 
+        /// <summary>
+        /// Injects a variable. Every State can consume this injected variable.
+        /// </summary>
+        /// <param name="name">The name of the injected variable.</param>
+        /// <param name="var">The value of the injected variable.</param>
         public void InjectVar(string name, object var)
         {
             if (this.varsDictionary == null)
@@ -316,6 +474,9 @@ namespace EM.EMSm
             this.varsDictionary.Add(name, var);
         }
 
+        /// <summary>
+        /// Resets the state an all its inner states.
+        /// </summary>
         internal void Reset()
         {
             Debug.WriteLine($"{this.Name}: Execute Exit()");
@@ -328,6 +489,9 @@ namespace EM.EMSm
 
         #region events
 
+        /// <summary>
+        /// Occurs when the state path has changed.
+        /// </summary>
         public event EventHandler<StatePathChangedEventArgs> StatePathChanged;
         protected virtual void OnStatePathChanged(StatePathChangedEventArgs e)
         {
