@@ -179,7 +179,7 @@ namespace EM.EMSm
         /// <value>
         /// The active inner state.
         /// </value>
-        public State InnerState
+        public State CurrentInnerState
         {
             get
             {

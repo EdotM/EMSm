@@ -44,7 +44,7 @@ namespace EMSm.Test
             while (innerState != null)
             {
                 Assert.IsTrue(innerState.TestVar == var);
-                innerState = (VarTestState)innerState.InnerState;
+                innerState = (VarTestState)innerState.CurrentInnerState;
             }
         }
 

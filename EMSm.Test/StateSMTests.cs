@@ -236,7 +236,7 @@ namespace EMSm.Test
         [Test]
         public void RunCycle_RunOfStateLeave_ShouldExecuteExitMethod()
         {
-            TestState innerState = (TestState)this.testSM.InnerState;
+            TestState innerState = (TestState)this.testSM.CurrentInnerState;
             this.testSM.RunCycle();
             this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
@@ -246,7 +246,7 @@ namespace EMSm.Test
         [Test]
         public void RunCycle_RunOfStateLeave_ShouldExecuteExitMethodOnly()
         {
-            TestState innerState = (TestState)this.testSM.InnerState;
+            TestState innerState = (TestState)this.testSM.CurrentInnerState;
             this.testSM.RunCycle();
             this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
@@ -256,9 +256,9 @@ namespace EMSm.Test
         [Test]
         public void RunCycle_RunOfStateInitial_ShouldDiabledStateAsInitialState()
         {
-            Assert.IsTrue(this.testSM.InnerState is DisabledState);
+            Assert.IsTrue(this.testSM.CurrentInnerState is DisabledState);
             this.testSM.RunCycle();
-            Assert.IsTrue(this.testSM.InnerState is DisabledState);
+            Assert.IsTrue(this.testSM.CurrentInnerState is DisabledState);
         }
 
         [Test]
@@ -267,32 +267,32 @@ namespace EMSm.Test
             this.testSM.RunCycle();
             this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
-            Assert.IsTrue(this.testSM.InnerState is EnabledState);
+            Assert.IsTrue(this.testSM.CurrentInnerState is EnabledState);
         }
 
         [Test]
         public void RunCycle_RunOfStateTransition_ShouldSwitchToEnabledStateToDisabledState()
         {
             this.testSM.RunCycle();
-            Assert.IsTrue(this.testSM.InnerState is DisabledState);
+            Assert.IsTrue(this.testSM.CurrentInnerState is DisabledState);
             this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
-            Assert.IsTrue(this.testSM.InnerState is EnabledState);
+            Assert.IsTrue(this.testSM.CurrentInnerState is EnabledState);
             this.testSM.InjectCommand(Commands.Disable);
             this.testSM.RunCycle();
-            Assert.IsTrue(this.testSM.InnerState is DisabledState);
+            Assert.IsTrue(this.testSM.CurrentInnerState is DisabledState);
         }
 
         [Test]
         public void RunCycle_RunOfStateTransition_InitialDisabledStateShouldBeTheSameInstanceAsDisabledState()
         {
             this.testSM.RunCycle();
-            ((TestState)this.testSM.InnerState).InstanceId = 0x12345678;
+            ((TestState)this.testSM.CurrentInnerState).InstanceId = 0x12345678;
             this.testSM.InjectCommand(Commands.Enable);
             this.testSM.RunCycle();
             this.testSM.InjectCommand(Commands.Disable);
             this.testSM.RunCycle();
-            Assert.IsTrue(((TestState)this.testSM.InnerState).InstanceId == 0x12345678);
+            Assert.IsTrue(((TestState)this.testSM.CurrentInnerState).InstanceId == 0x12345678);
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace EMSm.Test
             while (innerState != null)
             {
                 Assert.IsTrue(innerState.LastCommand == Commands.None);
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
         }
 
@@ -317,7 +317,7 @@ namespace EMSm.Test
             while (innerState != null)
             {
                 Assert.IsTrue(innerState.LastCommand == Commands.Disable);
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
         }
 
@@ -331,14 +331,14 @@ namespace EMSm.Test
             while (innerState != null)
             {
                 Assert.IsTrue(innerState.LastCommand == Commands.Disable);
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
             this.testSM.RunCycle();
             innerState = this.testSM;
             while (innerState != null)
             {
                 Assert.IsTrue(innerState.LastCommand == Commands.None);
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
         }
 
@@ -352,7 +352,7 @@ namespace EMSm.Test
             while (innerState != null)
             {
                 Assert.IsTrue(innerState.LastCommand == Commands.Disable);
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
         }
 
@@ -367,7 +367,7 @@ namespace EMSm.Test
             {
                 Assert.IsTrue(innerState.LastSimpleCommandArgs == 6);
 
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
         }
 
@@ -389,7 +389,7 @@ namespace EMSm.Test
                 Assert.IsTrue(innerState.LastCommandArgs.ValType.IntVar == 1);
                 Assert.IsTrue(innerState.LastCommandArgs.ValType.StrVar == "HalloVal");
 
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
         }
 
@@ -404,7 +404,7 @@ namespace EMSm.Test
             {
                 Assert.IsTrue(innerState.LastCommandArgs == null);
 
-                innerState = (TestState)innerState.InnerState;
+                innerState = (TestState)innerState.CurrentInnerState;
             }
         }
 
