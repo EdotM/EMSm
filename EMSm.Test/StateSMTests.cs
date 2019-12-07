@@ -1,231 +1,36 @@
 using System;
 using EM.EMSm;
-using NUnit.Framework;
+using EMSm.Test.TestStates;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EMSm.Test
 {
-
-    #region TestCommandArgs
-
-    class ComplexRefType
-    {
-        public int IntVar { get; set; }
-
-        public string StrVar { get; set; }
-
-    }
-
-    struct ComplexValType
-    {
-        public int IntVar { get; set; }
-
-        public string StrVar { get; set; }
-
-    }
-    class TestCommandArgs
-    {
-        public int IntVar { get; set; }
-
-        public string StrVar { get; set; }
-
-        public ComplexRefType RefType { get; set; }
-        
-        public ComplexValType ValType { get; set; }
-    }
-
-    #endregion
-
-    #region TestState
-
-    class TestState : State
-    {
-        public int InstanceId { get; set; }
-
-        public bool IsEntryExecuted { get; set; }
-
-        public int EntryExecutedCtr { get; set; }
-
-        public bool IsDoExecuted { get; set; }
-
-        public int DoExecutedCtr { get; set; }
-
-        public bool IsExitExecuted { get; set; }
-
-        public int ExitExecutedCtr { get; set; }
-
-        public Commands LastCommand { get; set; }
-
-        public TestCommandArgs LastCommandArgs { get; set; }
-
-        public int LastSimpleCommandArgs { get; set; }
-
-        protected override void Entry()
-        {
-            this.IsEntryExecuted = true;
-            this.EntryExecutedCtr++;
-            base.Entry();
-        }
-
-        protected override Enum Do()
-        {
-            this.IsDoExecuted = true;
-            this.DoExecutedCtr++;
-            this.LastCommand = this.GetCommand<Commands>();
-            Type commandArgsType;
-            if ((commandArgsType = this.GetCommandArgsType()) != null)
-            {
-                if (commandArgsType == typeof(int))
-                    this.LastSimpleCommandArgs = this.GetCommandArgs<int>();
-                else if (commandArgsType == typeof(TestCommandArgs))
-                    this.LastCommandArgs = this.GetCommandArgs<TestCommandArgs>();
-            }
-
-            return base.Do();
-        }
-
-        protected override void Exit()
-        {
-            this.IsExitExecuted = true;
-            this.ExitExecutedCtr++;
-            base.Exit();
-        }
-    }
-
-
-    #endregion
-
-    #region TestSM
-
-    enum Commands
-    {
-        None,
-        Enable,
-        Disable,
-    }
-
-    enum Transitions
-    {
-        Initial,
-        EnableCommandReceived,
-        DisableCommandReceived,
-    }
-
-    class InnerState1 : TestState
-    {
-    }
-
-    class InnerState2 : TestState
-    {
-    }
-
-
-    class EnabledState : TestState
-    {
-        public override TransitionsTable TransitionsTable
-        {
-            get => new TransitionsTable {
-            new TransitionEntry{
-                Transition=Transitions.Initial,
-                StateType=typeof(InnerState1),
-                StateName="InnerDisabled"},
-            new TransitionEntry{
-                Transition=Transitions.EnableCommandReceived,
-                StateType=typeof(InnerState2),
-                StateName="InnerEnabled"},
-            new TransitionEntry{
-                Transition=Transitions.DisableCommandReceived,
-                StateType=typeof(DisabledState),
-                StateName="InnerDisabled"},
-            };
-        }
-
-
-        protected override void Entry()
-        {
-            base.Entry();
-        }
-
-        protected override Enum Do()
-        {
-            if (this.GetCommand<Commands>() == Commands.Disable)
-                return Transitions.DisableCommandReceived;
-            return base.Do();
-        }
-
-        protected override void Exit()
-        {
-            base.Exit();
-        }
-    }
-
-    class DisabledState : TestState
-    {
-        protected override void Entry()
-        {
-            base.Entry();
-        }
-
-        protected override Enum Do()
-        {
-            if (this.GetCommand<Commands>() == Commands.Enable)
-                return Transitions.EnableCommandReceived;
-            return base.Do();
-        }
-
-        protected override void Exit()
-        {
-            base.Exit();
-        }
-    }
-
-    class TestSM : TestState
-    {
-        public override TransitionsTable TransitionsTable
-        {
-            get => new TransitionsTable {
-            new TransitionEntry{
-                Transition=Transitions.Initial,
-                StateType=typeof(DisabledState),
-                StateName="Disabled"},
-            new TransitionEntry{
-                Transition=Transitions.EnableCommandReceived,
-                StateType=typeof(EnabledState),
-                StateName="Enabled"},
-            new TransitionEntry{
-                Transition=Transitions.DisableCommandReceived,
-                StateType=typeof(DisabledState),
-                StateName="Disabled"},
-            };
-        }
-    }
-
-    #endregion
-
+    [TestClass]
     public class StateSMTests
     {
         private TestSM testSM = null;
 
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
             this.testSM = new TestSM();
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_FirstRunOfState_ShouldExecuteEntryMethod()
         {
             this.testSM.RunCycle();
             Assert.IsTrue(this.testSM.IsEntryExecuted);
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_FirstRunOfState_ShouldExecuteDoMethod()
         {
             this.testSM.RunCycle();
             Assert.IsTrue(this.testSM.IsDoExecuted);
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_RunOfState_ShouldExecuteDoMethodOnly()
         {
             this.testSM.RunCycle();
@@ -233,7 +38,7 @@ namespace EMSm.Test
             Assert.IsTrue((this.testSM.EntryExecutedCtr == 1) && (this.testSM.DoExecutedCtr == 2) && (this.testSM.ExitExecutedCtr == 0));
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_RunOfStateLeave_ShouldExecuteExitMethod()
         {
             TestState innerState = (TestState)this.testSM.CurrentInnerState;
@@ -243,7 +48,7 @@ namespace EMSm.Test
             Assert.IsTrue(innerState.IsExitExecuted);
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_RunOfStateLeave_ShouldExecuteExitMethodOnly()
         {
             TestState innerState = (TestState)this.testSM.CurrentInnerState;
@@ -253,7 +58,7 @@ namespace EMSm.Test
             Assert.IsTrue((innerState.EntryExecutedCtr == 1) && (innerState.DoExecutedCtr == 1) && (innerState.ExitExecutedCtr == 1));
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_RunOfStateInitial_ShouldDiabledStateAsInitialState()
         {
             Assert.IsTrue(this.testSM.CurrentInnerState is DisabledState);
@@ -261,7 +66,7 @@ namespace EMSm.Test
             Assert.IsTrue(this.testSM.CurrentInnerState is DisabledState);
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_RunOfStateTransition_ShouldSwitchToEnabledState()
         {
             this.testSM.RunCycle();
@@ -270,7 +75,7 @@ namespace EMSm.Test
             Assert.IsTrue(this.testSM.CurrentInnerState is EnabledState);
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_RunOfStateTransition_ShouldSwitchToEnabledStateToDisabledState()
         {
             this.testSM.RunCycle();
@@ -283,7 +88,7 @@ namespace EMSm.Test
             Assert.IsTrue(this.testSM.CurrentInnerState is DisabledState);
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_RunOfStateTransition_InitialDisabledStateShouldBeTheSameInstanceAsDisabledState()
         {
             this.testSM.RunCycle();
@@ -295,7 +100,7 @@ namespace EMSm.Test
             Assert.IsTrue(((TestState)this.testSM.CurrentInnerState).InstanceId == 0x12345678);
         }
 
-        [Test]
+        [TestMethod]
         public void InjectCommand_InjectNoCommand_ShouldBeNoneInAllInnerStates()
         {
             this.testSM.RunCycle();
@@ -307,7 +112,7 @@ namespace EMSm.Test
             }
         }
 
-        [Test]
+        [TestMethod]
         public void InjectCommand_InjectCommand_ShouldBeAvailableInAllInnerStates()
         {
             this.testSM.RunCycle();
@@ -321,7 +126,7 @@ namespace EMSm.Test
             }
         }
 
-        [Test]
+        [TestMethod]
         public void InjectCommand_InjectCommand_ShouldBeAvailableInAllInnerStatesOnlyForOneRunCycle()
         {
             this.testSM.RunCycle();
@@ -342,7 +147,7 @@ namespace EMSm.Test
             }
         }
 
-        [Test]
+        [TestMethod]
         public void InjectCommand_InjectCommandEnum_ShouldBeAvailableInAllInnerStates()
         {
             this.testSM.RunCycle();
@@ -356,7 +161,7 @@ namespace EMSm.Test
             }
         }
 
-        [Test]
+        [TestMethod]
         public void InjectCommand_InjectCommandWithSimpleArgs_ArgsShouldBeAvailableInAllInnerStates()
         {
             this.testSM.RunCycle();
@@ -371,7 +176,7 @@ namespace EMSm.Test
             }
         }
 
-        [Test]
+        [TestMethod]
         public void InjectCommand_InjectCommandWithArgs_ArgsShouldBeAvailableInAllInnerStates()
         {
             this.testSM.RunCycle();
@@ -393,7 +198,7 @@ namespace EMSm.Test
             }
         }
 
-        [Test]
+        [TestMethod]
         public void InjectCommand_InjectCommandWithoutArgs_ArgsShouldBeNullInAllInnerStates()
         {
             this.testSM.RunCycle();
@@ -408,7 +213,7 @@ namespace EMSm.Test
             }
         }
 
-        [Test]
+        [TestMethod]
         public void StatePathSet_SetStatePathWithOneInnerState_StatesShouldBeSetCorrectly()
         {
             string newStatePath = "TestSM->Enabled";
@@ -416,7 +221,7 @@ namespace EMSm.Test
             Assert.IsTrue(this.testSM.StatePath.Contains(newStatePath, StringComparison.Ordinal));
         }
 
-        [Test]
+        [TestMethod]
         public void StatePathSet_SetStatePathWithTwoInnerState_StatesShouldBeSetCorrectly()
         {
             string newStatePath = "TestSM->Enabled->InnerDisabled";
@@ -424,38 +229,38 @@ namespace EMSm.Test
             Assert.AreEqual(this.testSM.StatePath, newStatePath);
         }
 
-        [Test]
+        [TestMethod]
         public void StatePathSet_SetInvalidStatePath_ShouldThrowArgumentNullException()
         {
             string newStatePath = null;
-            Assert.Throws<ArgumentNullException>(() => this.testSM.StatePath = newStatePath);
+            Assert.ThrowsException<ArgumentNullException>(() => this.testSM.StatePath = newStatePath);
         }
 
-        [Test]
+        [TestMethod]
         public void StatePathSet_SetInvalidStatePath_ShouldThrowInvalidStatePathException()
         {
             string newStatePath = "TestSm->Enabled->InnerDisabled";
-            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+            Assert.ThrowsException<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
             newStatePath = "TestSM->Enabled->InnerDisabled->Invalid";
-            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+            Assert.ThrowsException<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
             
             newStatePath = "TestSM->Enabled->InnerDisabled->";
-            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+            Assert.ThrowsException<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
             newStatePath = string.Empty;
-            Assert.Throws<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
+            Assert.ThrowsException<InvalidStatePathException>(() => this.testSM.StatePath = newStatePath);
         }
 
-        [Test]
+        [TestMethod]
         public void StatePathSet_SetInvalidStatePath_ShouldThrowStateNotFoundException()
         {
             string newStatePath = "TestSM->nabled->InnerDisabled";
-            Assert.Throws<StateNotFoundException>(() => this.testSM.StatePath = newStatePath);
+            Assert.ThrowsException<StateNotFoundException>(() => this.testSM.StatePath = newStatePath);
             newStatePath = "TestSM->Enabled->Innerisabled";
-            Assert.Throws<StateNotFoundException>(() => this.testSM.StatePath = newStatePath);
+            Assert.ThrowsException<StateNotFoundException>(() => this.testSM.StatePath = newStatePath);
         }
 
 
-        [TearDown]
+        [TestCleanup]
         public void TearDown()
         {
             this.testSM = null;

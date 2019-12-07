@@ -1,71 +1,31 @@
-﻿using System;
-using EM.EMSm;
-using NUnit.Framework;
+﻿using EM.EMSm;
+using EMSm.Test.TestStates;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EMSm.Test
 {
-    #region NoInitialTransitionEntryTest
-
-    class TestSMWithoutInitialState : State
-    {
-        public override TransitionsTable TransitionsTable
-        {
-            get => new TransitionsTable {
-            new TransitionEntry{
-                Transition=Transitions.EnableCommandReceived,
-                StateType=typeof(EnabledState),
-                StateName="Enabled"},
-            new TransitionEntry{
-                Transition=Transitions.DisableCommandReceived,
-                StateType=typeof(DisabledState),
-                StateName="BlinkSlow"},
-            };
-        }
-    }
-
-    #endregion
-
-    #region NoNoneCommand-Test
-
-    enum CommandsWithoutNone
-    {
-        Enable,
-        Disable,
-    }
-
-    class StateWithoutNoneCommands : State
-    {
-        protected override Enum Do()
-        {
-            if (this.GetCommand<CommandsWithoutNone>() == CommandsWithoutNone.Disable)
-                return Transitions.DisableCommandReceived;
-            return base.Do();
-        }
-    }
-
-    #endregion
-    
+    [TestClass]
     public class InvalidConfigTests
     {
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
         }
 
-        [Test]
+        [TestMethod]
         public void Ctor_NoInitialTransitionEntryDefined_ShouldThrowInvalidConfigException()
         {
-            Assert.Throws<InvalidConfigException>(() => new TestSMWithoutInitialState());
+            Assert.ThrowsException<InvalidConfigException>(() => new TestSMWithoutInitialState());
         }
 
-        [Test]
+        [TestMethod]
         public void RunCycle_NoNoneCommandDefined_ShouldThrowInvalidConfigException()
         {
             StateWithoutNoneCommands state = new StateWithoutNoneCommands();
-            Assert.Throws<InvalidConfigException>(() => state.RunCycle());
+            Assert.ThrowsException<InvalidConfigException>(() => state.RunCycle());
         }
 
-        [TearDown]
+        [TestCleanup]
         public void TearDown()
         {
         }
