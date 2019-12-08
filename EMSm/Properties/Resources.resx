@@ -129,6 +129,10 @@
     <value>No "None" in commands enum defined! Please add a Member "None" to the commands-enum. (more info at www.eforge.net/emsm)</value>
     <comment>Exception-Message if no "None" was defined in commands enum</comment>
   </data>
+  <data name="PreviousCommandNotIntroducedToStates" xml:space="preserve">
+    <value>The previous injected command was not yet introduced to the states. RunCylce() must be executed before a new command can be injected.</value>
+    <comment>Exception-Message if previous command was not yet introduced to the states.</comment>
+  </data>
   <data name="StateNotFoundMessage" xml:space="preserve">
     <value>There is no state with specified name available!</value>
     <comment>Exception-Message if state was not found on setting a new state path</comment>

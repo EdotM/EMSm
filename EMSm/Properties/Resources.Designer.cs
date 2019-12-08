@@ -88,6 +88,15 @@ namespace EM.EMSm.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The previous injected command was not yet introduced to the states. RunCylce() must be executed before a new command can be injected..
+        /// </summary>
+        internal static string PreviousCommandNotIntroducedToStates {
+            get {
+                return ResourceManager.GetString("PreviousCommandNotIntroducedToStates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no state with specified name available!.
         /// </summary>
         internal static string StateNotFoundMessage {

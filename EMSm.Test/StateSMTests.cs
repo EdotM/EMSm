@@ -214,6 +214,15 @@ namespace EMSm.Test
         }
 
         [TestMethod]
+        public void InjectCommand_InjectCommandTwiceBeforeRunCycle_ShouldThrowCommandException()
+        {
+            this.testSM.RunCycle();
+            this.testSM.InjectCommand(Commands.Disable);
+            Assert.ThrowsException<CommandException>(()=> this.testSM.InjectCommand(Commands.Enable));
+        }
+
+
+        [TestMethod]
         public void StatePathSet_SetStatePathWithOneInnerState_StatesShouldBeSetCorrectly()
         {
             string newStatePath = "TestSM->Enabled";

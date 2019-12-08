@@ -365,6 +365,8 @@ namespace EM.EMSm
             {
                 if (this.newCommand == null)
                     this.newCommand = command;
+                else
+                    throw new CommandException(EM.EMSm.Properties.Resources.PreviousCommandNotIntroducedToStates);
             }
         }
 
