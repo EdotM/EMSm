@@ -1,2 +1,2 @@
 # EMSm
-EMSm: a simple, testable(TDD) hierarchical state machine for .Net
+This is the develop-branch for EMSm :-)
