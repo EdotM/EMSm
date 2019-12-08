@@ -18,13 +18,6 @@ namespace EMSm.Test
             Assert.ThrowsException<InvalidConfigException>(() => new TestSMWithoutInitialState());
         }
 
-        [TestMethod]
-        public void RunCycle_NoNoneCommandDefined_ShouldThrowInvalidConfigException()
-        {
-            StateWithoutNoneCommands state = new StateWithoutNoneCommands();
-            Assert.ThrowsException<InvalidConfigException>(() => state.RunCycle());
-        }
-
         [TestCleanup]
         public void TearDown()
         {

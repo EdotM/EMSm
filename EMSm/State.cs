@@ -164,27 +164,6 @@ namespace EM.EMSm
 
         #endregion
 
-        #region private methods
-
-        /// <summary>
-        /// Determines whether a "None"-command is present in the given command-enum.
-        /// </summary>
-        /// <param name="commandsEnumType">Type of the commands enum.</param>
-        /// <returns>
-        ///   <c>true</c> if the command-enum is valid otherwise, <c>false</c>.
-        /// </returns>
-        private static bool IsCommandsEnumValid(Type commandsEnumType)
-        {
-            var values = Enum.GetValues(commandsEnumType);
-            foreach (var value in values)
-            {
-                if (value.ToString() == "None")
-                    return true;
-            }
-            return false;
-        }
-
-        #endregion
 
         #region protected methods
 
@@ -243,9 +222,6 @@ namespace EM.EMSm
         /// <exception cref="EM.EMSm.InvalidConfigException"></exception>
         protected T GetCommand<T>() where T : Enum
         {
-            if (!IsCommandsEnumValid(typeof(T)))
-                throw new InvalidConfigException(EM.EMSm.Properties.Resources.NoNoneCommandDefinedMessage);
-
             if ((this.command != null) && (this.command.Cmd is T))
                 return (T)this.command.Cmd;
             else
@@ -261,8 +237,6 @@ namespace EM.EMSm
         {
             if (this.command != null)
             {
-                if (!IsCommandsEnumValid(this.command.Cmd.GetType()))
-                    throw new InvalidConfigException(EM.EMSm.Properties.Resources.NoNoneCommandDefinedMessage);
                 return this.command;
             }
             else
