@@ -7,12 +7,12 @@
     <Company></Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.0.0-beta</Version>
+    <Version>1.0.1-beta</Version>
     <Description>EMSm is a lightweight, easy-to-implement but powerfull hierarchical state machine library which is written in C#. The Library is compliant with the Common Language Specification (CLS) and super-usable with .NET Core. Therefore it is very suitable for developing workflows in embedded systems.</Description>
     <Copyright>2019</Copyright>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
-    <PackageProjectUrl>www.eforge.net/emsm</PackageProjectUrl>
-    <PackageIconUrl>http://www.eforge.net/blog/wp-content/uploads/2019/09/EMSm-Logo.png</PackageIconUrl>
+    <PackageProjectUrl>https://www.eforge.net/EMSm</PackageProjectUrl>
+    <PackageIconUrl>https://www.eforge.net/EMSm/EMSm-Logo.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
