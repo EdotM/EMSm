@@ -1,39 +1,25 @@
-﻿using System;
-using EM.EMSm;
-using NUnit.Framework;
+﻿using EM.EMSm;
+using EMSm.Test.TestStates;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EMSm.Test
 {
-    #region VarTestState
-
-    class VarTestState : TestState
-    {
-        public int TestVar { get; set; }
-
-        protected override Enum Do()
-        {
-            this.TestVar = this.GetVar<int>("testVar");
-            return base.Do();
-        }
-    }
-
-    #endregion
-
+    [TestClass]
     public class VarTests
     {
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
         }
 
-        [Test]
+        [TestMethod]
         public void InjectVar_InjectNoVar_ShouldThrowException()
         {
             VarTestState state = new VarTestState();
-            Assert.Throws<VarNotFoundException>(() => state.RunCycle());
+            Assert.ThrowsException<VarNotFoundException>(() => state.RunCycle());
         }
 
-        [Test]
+        [TestMethod]
         public void InjectVar_InjectVar_ShouldBeAvailableInAllInnerStates()
         {
             int var = 0x55AA55AA;
@@ -44,11 +30,11 @@ namespace EMSm.Test
             while (innerState != null)
             {
                 Assert.IsTrue(innerState.TestVar == var);
-                innerState = (VarTestState)innerState.InnerState;
+                innerState = (VarTestState)innerState.CurrentInnerState;
             }
         }
 
-        [TearDown]
+        [TestCleanup]
         public void TearDown()
         {
         }

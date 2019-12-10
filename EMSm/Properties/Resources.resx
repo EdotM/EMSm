@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="InvalidStatePathMessage" xml:space="preserve">
+    <value>StatePath is invalid, no context for specified state defined!</value>
+    <comment>Exception-Message if context for state path was not found.</comment>
+  </data>
   <data name="NoInitialStateDefinedMessage" xml:space="preserve">
     <value>No Initial state defined! Please add a TransitionEntry with a initial-transition to the TransitionsTable. (more info at www.eforge.net/emsm)</value>
     <comment>Exception-Message if no initial state is defined (Context-ctor)</comment>
@@ -124,6 +128,14 @@
   <data name="NoNoneCommandDefinedMessage" xml:space="preserve">
     <value>No "None" in commands enum defined! Please add a Member "None" to the commands-enum. (more info at www.eforge.net/emsm)</value>
     <comment>Exception-Message if no "None" was defined in commands enum</comment>
+  </data>
+  <data name="PreviousCommandNotIntroducedToStates" xml:space="preserve">
+    <value>The previous injected command was not yet introduced to the states. RunCylce() must be executed before a new command can be injected.</value>
+    <comment>Exception-Message if previous command was not yet introduced to the states.</comment>
+  </data>
+  <data name="StateNotFoundMessage" xml:space="preserve">
+    <value>There is no state with specified name available!</value>
+    <comment>Exception-Message if state was not found on setting a new state path</comment>
   </data>
   <data name="VarNotFoundMessage" xml:space="preserve">
     <value>Variable could not be found! Please inject the variable with the correct name. (more info at www.eforge.net/emsm)</value>
