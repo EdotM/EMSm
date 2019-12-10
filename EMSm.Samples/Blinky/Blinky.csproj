@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Description>Demo-Example of the EMSm-Library</Description>
+    <Copyright>2019</Copyright>
+    <Authors>Manfred Ehrengruber</Authors>
+    <PackageProjectUrl>www.eforge.net/EMSm</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EMSm\EMSm.csproj" />
+  </ItemGroup>
+
+</Project>
