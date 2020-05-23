@@ -50,9 +50,13 @@ namespace EM.EMSm
             foreach (var transitionEntry in transitionsTable)
             {
                 this.transitionsDict.Add(transitionEntry.Transition, stateFactory.CreateState(transitionEntry.StateType, transitionEntry.StateName));
-
+#if NET35
+                if (transitionEntry.Transition.ToString().Contains("Initial"))
+                    this.InitialState = this.transitionsDict[transitionEntry.Transition];
+#else
                 if (transitionEntry.Transition.ToString().Contains("Initial", StringComparison.Ordinal))
                     this.InitialState = this.transitionsDict[transitionEntry.Transition];
+#endif
             }
 
             if (this.InitialState == null)
@@ -61,9 +65,9 @@ namespace EM.EMSm
             this.CurrentState = this.InitialState;
         }
 
-        #endregion
+#endregion
 
-        #region public methods        
+#region public methods        
 
         /// <summary>
         /// Operates the current state, given by the context
@@ -95,6 +99,6 @@ namespace EM.EMSm
             this.CurrentState = stateFactory.GetState(stateName);
         }
 
-        #endregion    
+#endregion
     }
 }
