@@ -7,9 +7,9 @@
     <Company></Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Description>EMSm is a simple, TDD-testable hierarchical state machine library for .Net, perfectly suitable for developing the behavior of your embedded systems.</Description>
-    <Copyright>2019</Copyright>
+    <Copyright>2020</Copyright>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageProjectUrl>https://www.eforge.net/EMSm/</PackageProjectUrl>
     <PackageIcon>EMSm-Logo-128px.jpg</PackageIcon>
