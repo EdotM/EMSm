@@ -7,6 +7,10 @@
 
 # A simple, TDD-testable hierarchical state machine for .Net
 
+## Changelog
+* v1.1.0: intial version.
+* v1.2.0: support of older .Net-Frameworks implemented.
+
 ## Features
 * Entry-/Exit- Implementation.
 * Synchronous-/Asynchronous- Mode.
