@@ -106,8 +106,13 @@ namespace EM.EMSm
                 {
                     //check first state name
                     string firstStateName = value.Substring(0, sepIdx);
+#if NET35
+                    if (!firstStateName.Contains(this.Name))
+                        throw new InvalidStatePathException($"{EM.EMSm.Properties.Resources.StateNotFoundMessage} (name:\"{firstStateName}\")");
+#else
                     if (!firstStateName.Contains(this.Name, StringComparison.Ordinal))
                         throw new InvalidStatePathException($"{EM.EMSm.Properties.Resources.StateNotFoundMessage} (name:\"{firstStateName}\")");
+#endif
                     //check if context for innerStatePath is available
                     string innerStatePath = value.Remove(0, sepIdx + StatePathSepStr.Length);
                     if (this.context == null)
@@ -123,9 +128,15 @@ namespace EM.EMSm
                 }
                 else
                 {
+#if NET35
+                    //if no sep-string -> validate name of actual state
+                    if (!value.Contains(this.Name))
+                        throw new InvalidStatePathException($"{EM.EMSm.Properties.Resources.StateNotFoundMessage} (name:\"{value}\")");
+#else
                     //if no sep-string -> validate name of actual state
                     if (!value.Contains(this.Name, StringComparison.Ordinal))
                         throw new InvalidStatePathException($"{EM.EMSm.Properties.Resources.StateNotFoundMessage} (name:\"{value}\")");
+#endif
                 }
             }
         }
@@ -144,9 +155,9 @@ namespace EM.EMSm
             }
         }
 
-        #endregion
+#endregion
 
-        #region constructor
+#region constructor
 
         public State(string name)
         {
@@ -162,10 +173,10 @@ namespace EM.EMSm
         {
         }
 
-        #endregion
+#endregion
 
 
-        #region protected methods
+#region protected methods
 
         /// <summary>
         /// Runs once a transition to the state occurs.
@@ -222,8 +233,8 @@ namespace EM.EMSm
         /// <exception cref="EM.EMSm.InvalidConfigException"></exception>
         protected T GetCommand<T>() where T : Enum
         {
-            if ((this.command != null) && (this.command.Cmd is T))
-                return (T)this.command.Cmd;
+            if ((this.command != null) && (this.command.Cmd is T t))
+                return t;
             else
                 return default;
         }
@@ -262,8 +273,8 @@ namespace EM.EMSm
         /// <returns>The command arguments of the current injected command.</returns>
         protected T GetCommandArgs<T>()
         {
-            if ((this.command != null) && (this.command.CmdArgs is T))
-                return (T)this.command.CmdArgs;
+            if ((this.command != null) && (this.command.CmdArgs is T t))
+                return t;
             else
                 return default;
         }
@@ -287,9 +298,9 @@ namespace EM.EMSm
             return (T)this.varsDictionary[name];
         }
 
-        #endregion
+#endregion
 
-        #region public methods
+#region public methods
 
         /// <summary>
         /// Runs one cycle of the state-machine. Every Do-Methods of the 
@@ -348,6 +359,7 @@ namespace EM.EMSm
         /// active hierarchical states are executed.
         /// Please refer to https://www.eforge.net/EMSm for further documentation.
         /// </summary>
+        /// <returns>A transition to a new state or null.</returns>
         public void RunCycle()
         {
             this.RunInternalCycle();
@@ -418,9 +430,9 @@ namespace EM.EMSm
             this.isRunning = false;
         }
 
-        #endregion
+#endregion
 
-        #region events
+#region events
 
         /// <summary>
         /// Occurs when the state path has changed.
@@ -431,6 +443,6 @@ namespace EM.EMSm
             StatePathChanged?.Invoke(this, e);
         }
 
-        #endregion
+#endregion
     }
 }
