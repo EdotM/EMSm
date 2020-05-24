@@ -5,6 +5,8 @@
     <RootNamespace>EM.EMSm</RootNamespace>
     <Authors>Manfred Ehrengruber</Authors>
     <Company>EM</Company>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>EMSm.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
