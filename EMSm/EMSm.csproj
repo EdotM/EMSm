@@ -17,6 +17,8 @@
     <RepositoryUrl>https://github.com/EdotMdot/EMSm</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>hierarchical state machine embedded uml statechart TDD testable reusable</PackageTags>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>EMSm.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

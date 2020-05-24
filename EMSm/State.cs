@@ -359,7 +359,6 @@ namespace EM.EMSm
         /// active hierarchical states are executed.
         /// Please refer to https://www.eforge.net/EMSm for further documentation.
         /// </summary>
-        /// <returns>A transition to a new state or null.</returns>
         public void RunCycle()
         {
             this.RunInternalCycle();
