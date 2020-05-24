@@ -10,6 +10,7 @@
 ## Changelog
 * v1.1.0: intial version.
 * v1.2.0: support of older .Net-Frameworks implemented.
+* v1.3.0: strong-name-signing implemented
 
 ## Features
 * Entry-/Exit- Implementation.
