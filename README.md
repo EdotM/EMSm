@@ -11,6 +11,7 @@
 * v1.1.0: intial version.
 * v1.2.0: support of older .Net-Frameworks implemented.
 * v1.3.0: strong-name-signing implemented
+* v1.4.0: Fix: Exit()-Methods weren't executed during state-transitions via setting the state path.
 
 ## Features
 * Entry-/Exit- Implementation.
