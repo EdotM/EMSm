@@ -67,7 +67,7 @@ namespace EM.EMSm
 
 #endregion
 
-#region public methods        
+        #region public methods        
 
         /// <summary>
         /// Operates the current state, given by the context
@@ -96,9 +96,10 @@ namespace EM.EMSm
         /// <remarks>This is used for restoring the state-context by providing state paths</remarks>
         public void SetCurrentStateFromName(string stateName)
         {
+            this.CurrentState.Reset();
             this.CurrentState = stateFactory.GetState(stateName);
         }
 
-#endregion
+        #endregion
     }
 }
